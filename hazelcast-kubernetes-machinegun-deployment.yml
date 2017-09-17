@@ -1,0 +1,29 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: hazelcast-machinegun
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hazelcast-machinegun
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: hazelcast
+          image: kislitsyn/hazelcast-machinegun-client:latest
+          env:
+            - name: JAVA_OPTS
+              value: "-Dlogging.threshold=INFO -Dhazelcast.client.config=/etc/hazelcast/hazelcast-client.xml -Dhazelcast.client.corePoolSize=1000 -Dhazelcast.client.delay=10 -Dhazelcast.client.method=socket"
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: hazelcast-client-config-volume
+              mountPath: /etc/hazelcast
+      volumes:
+        - name: hazelcast-client-config-volume
+          configMap:
+            name: hazelcast-machinegun-kubernetes-conf

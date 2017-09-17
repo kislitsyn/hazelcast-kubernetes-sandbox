@@ -1,0 +1,32 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: hazelcast-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hazelcast-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: hazelcast
+          image: kislitsyn/hazelcast-server:latest
+          env:
+            - name: JAVA_OPTS
+              value: "-Dhazelcast.rest.enabled=true -Dlogging.threshold=INFO -Dhazelcast.server.config=/etc/hazelcast/hazelcast.xml"
+          ports:
+            - name: hazelcast
+              containerPort: 5701
+            - name: metrics
+              containerPort: 8080
+          volumeMounts:
+            - name: hazelcast-config-volume
+              mountPath: /etc/hazelcast
+      volumes:
+        - name: hazelcast-config-volume
+          configMap:
+            name: hazelcast-kubernetes-conf

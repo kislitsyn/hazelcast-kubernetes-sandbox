@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hazelcast-server
+  name: hazelcast-server
+spec:
+  ports:
+  - name: hazelcast
+    port: 5701
+    protocol: TCP
+    targetPort: 5701
+  - name: metrics
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    run: hazelcast-server
+  type: NodePort
